@@ -1,18 +1,19 @@
 {
   "name": "day-6-7",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "build": "cd client && npm install && npm run build"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Weather app backend with React frontend build",
   "dependencies": {
     "axios": "^1.11.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0",
+    "express": "^4.18.2",
     "mongoose": "^8.16.4",
     "morgan": "^1.10.1"
   }
