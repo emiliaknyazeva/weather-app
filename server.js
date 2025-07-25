@@ -3,22 +3,23 @@ const mongoose = require('mongoose');
 const morgan = require('morgan');
 const axios = require('axios');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT || 4000; // Render сам задаёт порт
 
-// Настройки
+// === Middleware ===
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Подключаем MongoDB Atlas
+// === MongoDB Atlas ===
 const MONGO_URI = 'mongodb+srv://Emilia:dagzaq-zypvys-pawNy9@cluster0.t3d2n5j.mongodb.net/day6_weather?retryWrites=true&w=majority';
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ MongoDB Atlas connected'))
   .catch(err => console.error('❌ MongoDB error:', err.message));
 
-// Схема избранных городов
+// === Схема избранных городов ===
 const favoriteSchema = new mongoose.Schema({
   city: String,
   country: String,
@@ -26,10 +27,10 @@ const favoriteSchema = new mongoose.Schema({
 });
 const Favorite = mongoose.model('Favorite', favoriteSchema);
 
-// API ключ Weatherstack
+// === API ключ Weatherstack ===
 const WEATHERSTACK_KEY = '9fcac51c7af4d92ae361a2c5bc33342b';
 
-// Маршрут для получения погоды
+// === API: Получить погоду ===
 app.get('/weather', async (req, res) => {
   const { city } = req.query;
   if (!city) return res.status(400).json({ error: 'City is required' });
@@ -56,7 +57,7 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-// CRUD избранных городов
+// === API: CRUD избранных городов ===
 app.get('/favorites', async (req, res) => {
   const favorites = await Favorite.find();
   res.json(favorites);
@@ -75,5 +76,13 @@ app.delete('/favorites/:id', async (req, res) => {
   res.json(deleted);
 });
 
-// Запуск сервера
-app.listen(PORT, () => console.log(`Weather API running on http://localhost:${PORT}`));
+// === Раздаём React-фронтенд ===
+app.use(express.static(path.join(__dirname, 'client', 'build')));
+
+// Если запрос не попал в API, отдаём React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+});
+
+// === Запуск сервера ===
+app.listen(PORT, () => console.log(`✅ Weather API running on port ${PORT}`));
