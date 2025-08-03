@@ -14,16 +14,22 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 // === MongoDB Atlas ===
-const MONGO_URI = 'mongodb+srv://Emilia:dagzaq-zypvys-pawNy9@cluster0.t3d2n5j.mongodb.net/day6_weather?retryWrites=true&w=majority';
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ MongoDB Atlas connected'))
-  .catch(err => console.error('❌ MongoDB error:', err.message));
+const MONGO_URI =
+  'mongodb+srv://Emilia:dagzaq-zypvys-pawNy9@cluster0.t3d2n5j.mongodb.net/day6_weather?retryWrites=true&w=majority';
+
+// ✅ Подключаем MongoDB только если НЕ тест
+if (process.env.NODE_ENV !== 'test') {
+  mongoose
+    .connect(MONGO_URI)
+    .then(() => console.log('✅ MongoDB Atlas connected'))
+    .catch((err) => console.error('❌ MongoDB error:', err.message));
+}
 
 // === Схема избранных городов ===
 const favoriteSchema = new mongoose.Schema({
   city: String,
   country: String,
-  temperature: Number
+  temperature: Number,
 });
 const Favorite = mongoose.model('Favorite', favoriteSchema);
 
@@ -50,9 +56,10 @@ app.get('/weather', async (req, res) => {
       city: data.location.name,
       country: data.location.country,
       temperature: data.current.temperature,
-      weather: data.current.weather_descriptions[0]
+      weather: data.current.weather_descriptions[0],
     });
-  } catch (error) {
+  } catch (err) {
+    console.error('❌ Weather API error:', err.message);
     res.status(500).json({ error: 'Weather API error' });
   }
 });
@@ -84,5 +91,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
 
-// === Запуск сервера ===
-app.listen(PORT, () => console.log(`✅ Weather API running on port ${PORT}`));
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`✅ Weather API running on port ${PORT}`));
+}
+
+module.exports = app;

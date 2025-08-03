@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+
 import axios from 'axios';
 
 const API_URL = 'https://weather-app-t5ye.onrender.com';
@@ -31,26 +32,38 @@ function App() {
 
   const deleteFavorite = async (id) => {
     await axios.delete(`${API_URL}/favorites/${id}`);
-    setFavorites(favorites.filter(f => f._id !== id));
+    setFavorites(favorites.filter((f) => f._id !== id));
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
-      padding: '40px',
-      fontFamily: 'Arial, sans-serif',
-      color: '#333',
-    }}>
-      <div style={{
-        maxWidth: '600px',
-        margin: '0 auto',
-        background: 'white',
-        borderRadius: '16px',
-        padding: '30px',
-        boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '20px' }}>🌤 Weather App</h1>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)',
+        padding: '40px',
+        fontFamily: 'Arial, sans-serif',
+        color: '#333',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '600px',
+          margin: '0 auto',
+          background: 'white',
+          borderRadius: '16px',
+          padding: '30px',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+        }}
+      >
+        <h1
+          style={{
+            textAlign: 'center',
+            fontSize: '2rem',
+            marginBottom: '20px',
+          }}
+        >
+          🌤 Weather App
+        </h1>
 
         {/* Поле ввода */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
@@ -61,7 +74,7 @@ function App() {
               fontSize: '16px',
               borderRadius: '8px',
               border: '1px solid #ddd',
-              outline: 'none'
+              outline: 'none',
             }}
             type="text"
             placeholder="Введите город..."
@@ -77,11 +90,11 @@ function App() {
               color: 'white',
               fontSize: '16px',
               cursor: 'pointer',
-              transition: '0.3s'
+              transition: '0.3s',
             }}
             onClick={getWeather}
-            onMouseEnter={(e) => e.target.style.background = '#00f2fe'}
-            onMouseLeave={(e) => e.target.style.background = '#4facfe'}
+            onMouseEnter={(e) => (e.target.style.background = '#00f2fe')}
+            onMouseLeave={(e) => (e.target.style.background = '#4facfe')}
           >
             Показать
           </button>
@@ -89,16 +102,22 @@ function App() {
 
         {/* Погода */}
         {weather && (
-          <div style={{
-            background: '#f5faff',
-            borderRadius: '12px',
-            padding: '20px',
-            textAlign: 'center',
-            marginBottom: '20px',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
-          }}>
-            <h2 style={{ margin: '10px 0' }}>{weather.city}, {weather.country}</h2>
-            <p style={{ fontSize: '20px' }}>🌡 <b>{weather.temperature}°C</b></p>
+          <div
+            style={{
+              background: '#f5faff',
+              borderRadius: '12px',
+              padding: '20px',
+              textAlign: 'center',
+              marginBottom: '20px',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+            }}
+          >
+            <h2 style={{ margin: '10px 0' }}>
+              {weather.city}, {weather.country}
+            </h2>
+            <p style={{ fontSize: '20px' }}>
+              🌡 <b>{weather.temperature}°C</b>
+            </p>
             <p style={{ fontStyle: 'italic' }}>☁ {weather.weather}</p>
             <button
               style={{
@@ -108,7 +127,7 @@ function App() {
                 border: 'none',
                 background: '#ffd43b',
                 fontSize: '14px',
-                cursor: 'pointer'
+                cursor: 'pointer',
               }}
               onClick={addFavorite}
             >
@@ -118,22 +137,31 @@ function App() {
         )}
 
         {/* Избранные */}
-        <h2 style={{ textAlign: 'center', margin: '20px 0' }}>⭐ Избранные города</h2>
+        <h2 style={{ textAlign: 'center', margin: '20px 0' }}>
+          ⭐ Избранные города
+        </h2>
         {favorites.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#666' }}>Пока нет избранных городов</p>
+          <p style={{ textAlign: 'center', color: '#666' }}>
+            Пока нет избранных городов
+          </p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0 }}>
-            {favorites.map(fav => (
-              <li key={fav._id} style={{
-                background: '#fff8e1',
-                padding: '10px 15px',
-                marginBottom: '10px',
-                borderRadius: '8px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <span>🏙 <b>{fav.city}</b> ({fav.country}) – {fav.temperature}°C</span>
+            {favorites.map((fav) => (
+              <li
+                key={fav._id}
+                style={{
+                  background: '#fff8e1',
+                  padding: '10px 15px',
+                  marginBottom: '10px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span>
+                  🏙 <b>{fav.city}</b> ({fav.country}) – {fav.temperature}°C
+                </span>
                 <button
                   style={{
                     padding: '5px 10px',
@@ -141,7 +169,7 @@ function App() {
                     border: 'none',
                     background: '#ff6b6b',
                     color: 'white',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}
                   onClick={() => deleteFavorite(fav._id)}
                 >
