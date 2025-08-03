@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-
 import axios from 'axios';
 
 const API_URL = 'https://weather-app-t5ye.onrender.com';
@@ -8,6 +7,7 @@ function App() {
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     loadFavorites();
@@ -19,9 +19,27 @@ function App() {
   };
 
   const getWeather = async () => {
-    if (!city) return;
-    const res = await axios.get(`${API_URL}/weather?city=${city}`);
-    setWeather(res.data);
+    if (!city.trim()) return;
+    try {
+      const res = await axios.get(`${API_URL}/weather?city=${encodeURIComponent(city)}`);
+      setWeather(res.data);
+      setError('');
+    } catch (err) {
+      setWeather(null);
+      setError('Город не найден');
+    }
+  };
+
+  const getWeatherByCity = async (cityName) => {
+    try {
+      const res = await axios.get(`${API_URL}/weather?city=${encodeURIComponent(cityName)}`);
+      setWeather(res.data);
+      setCity(cityName);
+      setError('');
+    } catch (err) {
+      setWeather(null);
+      setError('Город не найден');
+    }
   };
 
   const addFavorite = async () => {
@@ -55,13 +73,7 @@ function App() {
           boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
         }}
       >
-        <h1
-          style={{
-            textAlign: 'center',
-            fontSize: '2rem',
-            marginBottom: '20px',
-          }}
-        >
+        <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '20px' }}>
           🌤 Weather App
         </h1>
 
@@ -99,6 +111,11 @@ function App() {
             Показать
           </button>
         </div>
+
+        {/* Ошибка */}
+        {error && (
+          <div style={{ color: 'red', textAlign: 'center', marginBottom: '20px' }}>{error}</div>
+        )}
 
         {/* Погода */}
         {weather && (
@@ -157,7 +174,9 @@ function App() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  cursor: 'pointer',
                 }}
+                onClick={() => getWeatherByCity(fav.city)}
               >
                 <span>
                   🏙 <b>{fav.city}</b> ({fav.country}) – {fav.temperature}°C
@@ -171,7 +190,10 @@ function App() {
                     color: 'white',
                     cursor: 'pointer',
                   }}
-                  onClick={() => deleteFavorite(fav._id)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // чтобы не срабатывало открытие погоды
+                    deleteFavorite(fav._id);
+                  }}
                 >
                   Удалить
                 </button>
