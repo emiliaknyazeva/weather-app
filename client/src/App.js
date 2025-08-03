@@ -18,23 +18,13 @@ function App() {
     setFavorites(res.data);
   };
 
-  const getWeather = async () => {
-    if (!city.trim()) return;
+  const getWeather = async (targetCity = city) => {
+    if (!targetCity) return;
     try {
-      const res = await axios.get(`${API_URL}/weather?city=${encodeURIComponent(city)}`);
+      const res = await axios.get(
+        `${API_URL}/weather?city=${encodeURIComponent(targetCity)}`
+      );
       setWeather(res.data);
-      setError('');
-    } catch (err) {
-      setWeather(null);
-      setError('Город не найден');
-    }
-  };
-
-  const getWeatherByCity = async (cityName) => {
-    try {
-      const res = await axios.get(`${API_URL}/weather?city=${encodeURIComponent(cityName)}`);
-      setWeather(res.data);
-      setCity(cityName);
       setError('');
     } catch (err) {
       setWeather(null);
@@ -44,6 +34,11 @@ function App() {
 
   const addFavorite = async () => {
     if (!weather) return;
+    const alreadyExists = favorites.some(
+      (f) => f.city.toLowerCase() === weather.city.toLowerCase()
+    );
+    if (alreadyExists) return;
+
     const res = await axios.post(`${API_URL}/favorites`, weather);
     setFavorites([...favorites, res.data]);
   };
@@ -73,7 +68,13 @@ function App() {
           boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
         }}
       >
-        <h1 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '20px' }}>
+        <h1
+          style={{
+            textAlign: 'center',
+            fontSize: '2rem',
+            marginBottom: '20px',
+          }}
+        >
           🌤 Weather App
         </h1>
 
@@ -92,6 +93,7 @@ function App() {
             placeholder="Введите город..."
             value={city}
             onChange={(e) => setCity(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && getWeather()}
           />
           <button
             style={{
@@ -104,7 +106,7 @@ function App() {
               cursor: 'pointer',
               transition: '0.3s',
             }}
-            onClick={getWeather}
+            onClick={() => getWeather()}
             onMouseEnter={(e) => (e.target.style.background = '#00f2fe')}
             onMouseLeave={(e) => (e.target.style.background = '#4facfe')}
           >
@@ -112,9 +114,11 @@ function App() {
           </button>
         </div>
 
-        {/* Ошибка */}
+        {/* Сообщение об ошибке */}
         {error && (
-          <div style={{ color: 'red', textAlign: 'center', marginBottom: '20px' }}>{error}</div>
+          <p style={{ textAlign: 'center', color: 'red', marginBottom: '20px' }}>
+            ❌ {error}
+          </p>
         )}
 
         {/* Погода */}
@@ -136,20 +140,41 @@ function App() {
               🌡 <b>{weather.temperature}°C</b>
             </p>
             <p style={{ fontStyle: 'italic' }}>☁ {weather.weather}</p>
-            <button
-              style={{
-                marginTop: '10px',
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: '#ffd43b',
-                fontSize: '14px',
-                cursor: 'pointer',
-              }}
-              onClick={addFavorite}
-            >
-              ⭐ Добавить в избранное
-            </button>
+
+            {favorites.some(
+              (fav) => fav.city.toLowerCase() === weather.city.toLowerCase()
+            ) ? (
+              <button
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#c3f7c3',
+                  fontSize: '14px',
+                  cursor: 'default',
+                  color: '#2e7d32',
+                }}
+                disabled
+              >
+                ✅ В избранном
+              </button>
+            ) : (
+              <button
+                style={{
+                  marginTop: '10px',
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#ffd43b',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                }}
+                onClick={addFavorite}
+              >
+                ⭐ Добавить в избранное
+              </button>
+            )}
           </div>
         )}
 
@@ -176,7 +201,10 @@ function App() {
                   alignItems: 'center',
                   cursor: 'pointer',
                 }}
-                onClick={() => getWeatherByCity(fav.city)}
+                onClick={() => {
+                  setCity(fav.city);
+                  getWeather(fav.city);
+                }}
               >
                 <span>
                   🏙 <b>{fav.city}</b> ({fav.country}) – {fav.temperature}°C
@@ -191,7 +219,7 @@ function App() {
                     cursor: 'pointer',
                   }}
                   onClick={(e) => {
-                    e.stopPropagation(); // чтобы не срабатывало открытие погоды
+                    e.stopPropagation();
                     deleteFavorite(fav._id);
                   }}
                 >
